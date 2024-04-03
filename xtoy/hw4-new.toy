@@ -1,0 +1,252 @@
+/******************************************************************************
+ *  Description: Encryption Assignment 
+ *  Input: 0 or R based on encryption or decryption
+ *  Output: generate encrypted message or decrypt the input message
+ ******************************************************************************/
+
+//First read in 0 or R from the user
+//when 0 --> go to decryption
+//when R --> go to encryption 
+10: 81FF   read R[1]                     // either 0 or random value 
+11: C155   if (R[1] == 0) goto 55        // 0 is for decryption NOT encrypt
+
+
+
+//initialize memory address for storing secret keys 
+12: 73A0   R[3] <- 00A0                  
+//initialize memory address for storing the words
+13: 76C0   R[6] <- 00C0                  
+
+//ask the user for number of words (n)
+14: 84FF   read R[4]                     
+
+//a register set to constant 0 
+15: 7500   R[5] <- 0000                  
+
+//use the constant 0 to store the original number of words
+16: 1554   R[5] <- R[5] + R[4]            
+
+                 
+
+//constant that is 1 to update the memory address later
+//will need this while multiplying also 
+17: 7701   R[7] <- 0001                  
+18: 7800   R[8] <- 0000                  
+
+
+//Start a while loop 
+//range over the n number of words
+19: C51F   if (R[5] == 0) goto 1F        
+//reading the word
+1A: 89FF   read R[9]                     
+//choose a ram to send the word to 
+1B: B906   M[R[6]] <- R[9]               
+//increase the ram address 
+1C: 1667   R[6] <- R[6] + R[7]           
+//decrease the number of words by 1 
+1D: 2557   R[5] <- R[5] - R[7]           
+//condition to exit the while loop for reading the n words
+1E: D519   if (R[5] > 0) goto 19         
+
+//ending the loop for reading n number of words 
+
+//Linear congruent generator Function f(R) = aR+c mod k 
+
+//set a register equal to value of c = 1 
+1F: 7A01   R[A] <- 0001                  
+
+//set a register equal to value of a = 17
+20: 7B11   R[B] <- 0011                  
+
+//k in 2 to the power of k for mod operation
+21: 7D00   R[D] <- 0000                  
+
+//Another loop to generate n number of secrete keys
+//number of words in register 5  
+//bigger loop
+22: 1554   R[5] <- R[5] + R[4]           
+23: C530   if (R[5] == 0) goto 30        
+
+//do a times R for the LCG function
+//multiplication function 
+
+24: 7C00   R[C] <- 0000                  
+//smaller loop
+25: CB29   if (R[B] == 0) goto 29        
+26: 1CC1   R[C] <- R[C] + R[1]           //adding 17
+27: 2BB7   R[B] <- R[B] - R[7]           //subtract 1
+28: DB25   if (R[B] > 0) goto 25         
+
+//finished aR
+//begin aR+c
+29: 1FC7   R[F] <- R[C] + R[7]           
+2A: 722C   R[2] <- 002C                  
+2B: E200   goto R[2]                     
+//mod operation
+//left shift first 
+          
+
+//finished 
+
+//use memory address to store the generated secret keys  
+2C: BF03   M[R[3]] <- R[F]               
+2D: A103   R[1] <- M[R[3]]               //storing the first random use it later
+2E: 1337   R[3] <- R[3] + R[7]           //update address
+
+//need to decrease the number of words 
+2F: 2557   R[5] <- R[5] - R[7]           
+30: 7B11   R[B] <- 0011                  
+//if still have more words -- go to line 23
+31: D523   if (R[5] > 0) goto 23         
+
+//begin encryption 
+32: 7BA0   R[B] <- 00A0                  //secrete key
+33: 7AC0   R[A] <- 00C0                  //word
+34: 72E0   R[2] <- 00E0                  //encrypted word
+
+35: 1554   R[5] <- R[5] + R[4]           //original words
+//beginning of a loop
+36: C540   if (R[5] == 0) goto 40        //go to print output
+
+37: A90A   R[9] <- M[R[A]]               //memory location for the word
+38: A60B   R[6] <- M[R[B]]               //memory location for the secret key
+
+//perform XOR
+39: 4896   R[8] <- R[9] ^ R[6]           
+//put the encrypted message to its memory location 
+3A: B802   M[R[2]] <- R[8]               
+//increment memory address for secret key
+3B: 1BB7   R[B] <- R[B] + R[7]           
+//increment memory address for word
+3C: 1AA7   R[A] <- R[A] + R[7]           
+//increment memory address for encrypted msg
+3D: 1227   R[2] <- R[2] + R[7]           
+//decrease the number of words by 1 
+3E: 2557   R[5] <- R[5] - R[7]           
+3F: D536   if (R[5] > 0) goto 36         
+//ending the loop
+
+
+//0, n, encrypted message, secret key
+//output for encryption
+//0 
+40: 7800   R[8] <- 0000                  
+41: 98FF   write R[8]                    
+//n
+42: 94FF   write R[4]                    
+//encrypted message 
+43: 71E0   R[1] <- 00E0                  //first memory location 
+//loop to print encrypted message 
+44: 1554   R[5] <- R[5] + R[4]            
+45: 7A45   R[A] <- 0045                  
+46: C54C   if (R[5] == 0) goto 4C        
+47: A201   R[2] <- M[R[1]]               
+48: 92FF   write R[2]                    
+49: 1117   R[1] <- R[1] + R[7]           //increase the memory location
+4A: 2557   R[5] <- R[5] - R[7]           
+4B: EA00   goto R[A]                     
+
+//secret key 
+4C: 79A0   R[9] <- 00A0                  //first memory location
+//loop to print secret key
+4D: 1554   R[5] <- R[5] + R[4]           
+4E: 7B4E   R[B] <- 004E                  
+4F: C576   if (R[5] == 0) goto 76        
+50: AA09   R[A] <- M[R[9]]               
+51: 9AFF   write R[A]                    
+52: 1997   R[9] <- R[9] + R[7]           //increase the memory location 
+53: 2557   R[5] <- R[5] - R[7]           
+54: EB00   goto R[B]                     
+
+
+
+//decryption
+//user input: number of encrypted msgs
+55: 84FF   read R[4]                     
+
+//a register set to constant 0 
+56: 7500   R[5] <- 0000                  
+
+//use the constant 0 to store the original number n
+57: 1554   R[5] <- R[5] + R[4]            
+
+//initialize memory address for storing secret keys 
+58: 73A0   R[3] <- 00A0                  
+
+//initialize memory address for storing the encrypted msg
+59: 76E0   R[6] <- 00E0                  
+
+5A: 7701   R[7] <- 0001                  
+
+//Start a while loop 
+//range over the n number of words
+5B: C561   if (R[5] == 0) goto 61        
+//reading the encrypted word
+5C: 89FF   read R[9]                     
+//choose a ram to send the word to 
+5D: B906   M[R[6]] <- R[9]               
+//increase the ram address 
+5E: 1667   R[6] <- R[6] + R[7]           
+//decrease the number of words by 1 
+5F: 2557   R[5] <- R[5] - R[7]           
+//condition to exit the while loop for reading the n words
+60: D55B   if (R[5] > 0) goto 5B         
+
+61: 1554   R[5] <- R[5] + R[4]           
+
+//Start a while loop 
+//range over the n number of secret keys
+62: C568   if (R[5] == 0) goto 68        
+//reading the secret key
+63: 89FF   read R[9]                     
+//choose a ram to send the secret key to 
+64: B903   M[R[3]] <- R[9]               
+//increase the ram address 
+65: 1337   R[3] <- R[3] + R[7]           
+//decrease the number of secret keys by 1 
+66: 2557   R[5] <- R[5] - R[7]           
+//condition to exit the while loop for reading the n words
+67: D562   if (R[5] > 0) goto 62         
+
+
+//begin decryption 
+68: 7DA0   R[D] <- 00A0                  //secret key
+69: 7AC0   R[A] <- 00C0                  //original words
+6A: 72E0   R[2] <- 00E0                  //encrypted words
+
+6B: 1554   R[5] <- R[5] + R[4]           //original number
+6C: 95FF   write R[5]                    
+//beginning of a loop
+6D: C576   if (R[5] == 0) goto 76        //go to print output
+
+6E: A902   R[9] <- M[R[2]]               //memory location for the encrypted msg
+6F: A60d   R[6] <- M[R[D]]               //memory location for the secret key
+
+//perform XOR
+70: 4896   R[8] <- R[9] ^ R[6]           
+71: 98FF   write R[8]                    
+
+//increment memory address for secret key
+72: 1DD7   R[D] <- R[D] + R[7]           
+//increment memory address for encrypted msg
+73: 1227   R[2] <- R[2] + R[7]           
+//decrease the number of words by 1 
+74: 2557   R[5] <- R[5] - R[7]           
+75: D56D   if (R[5] > 0) goto 6D         
+//ending the loop
+
+
+
+76: 0000   halt                          
+
+
+
+
+
+
+
+
+
+
+
+ 

@@ -1,0 +1,26 @@
+/******************************************************************************
+ *  Description: program and function to calculate One's Complement
+ *  Input: x as a 16-bit integer in R1
+ *  Output: One's Complement of x stored in R2
+ ******************************************************************************/
+
+
+program One's Complement
+//Input: none 
+//Output: XOR 
+10: 7102   R[1] <- 0002                  
+11: FF30   R[F] <- PC; goto 30           
+12: 0000   halt                          
+
+function One's Complement
+//Input: R1
+//Return address: RF
+//Output: to screen
+//Temp vars: RA, R5, R77105
+
+30: 7A01   R[A] <- 0001                  //set A to 1
+31: 7400   R[4] <- 0000                  
+32: 254A   R[5] <- R[4] - R[A]           //get value to XOR with 
+33: 4215   R[2] <- R[1] ^ R[5]           //XOR goes to R2                 
+34: 92FF   write R[2]                                    
+35: EF00   goto R[F]                                

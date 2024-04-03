@@ -1,0 +1,39 @@
+program OneTimePad
+/******************************************************************************
+ * Description:  Linear Congruent Random Number Generator. 
+ *               Inefficient.
+ * Input:        integers random seed and a
+ * Output:       integer c = a * b
+
+ ******************************************************************************/
+
+//Multiplying R (random seed) to a (17)
+10: 8AFF   read R[A]                     //take in R (random seed) and store R2
+11: 7B11   R[B] <- 0011                  //a 
+
+12: 7C00   R[C] <- 0000                  
+13: 7101   R[1] <- 0001                  
+
+14: CA18   if (R[A] == 0) goto 18        while (a != 0) {
+15: 1CCB   R[C] <- R[C] + R[B]              c += b
+16: 2AA1   R[A] <- R[A] - R[1]              a-- }
+17: C014   goto 14                                           
+18: FF20   R[F] <- PC; goto 20           
+19: 0000   halt                          
+        
+//add c to a*R
+
+20: 7D01   R[D] <- 0001                  
+21: 1EDC   R[E] <- R[D] + R[C]                                                                                
+                       
+//Left and Right shift  
+22: 7203   R[2] <- 0003                  
+23: 53E2   R[3] <- R[E] << R[2]          
+24: 6432   R[4] <- R[3] >> R[2]          
+25: 94FF   write R[4]                    
+26: EF00   goto R[F]                     
+
+//Take in the word
+27: 81FF   read R[1]                     
+28: 
+
